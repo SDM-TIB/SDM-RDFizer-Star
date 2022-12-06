@@ -920,13 +920,13 @@ def semantify_file(triples_map, triples_map_list, delimiter, row, no_inner_cycle
 		elif predicate_object_map.object_map.mapping_type == "parent triples map":
 			if subject != None:
 				for triples_map_inner in triples_map_list:
-					if triples_map_element.triples_map_id == predicate_object_map.object_map.value:
-						if triples_map.data_source != triples_map_element.data_source:
+					if triples_map_inner.triples_map_id == predicate_object_map.object_map.value:
+						if triples_map.data_source != triples_map_inner.data_source:
 							if len(predicate_object_map.object_map.child) == 1:
 								if (triples_map_inner.triples_map_id + "_" + predicate_object_map.object_map.child[0]) not in join_table:
-									if str(triples_map_inner.file_format).lower() == "csv" or triples_map_element.file_format == "JSONPath":
+									if str(triples_map_inner.file_format).lower() == "csv" or triples_map_inner.file_format == "JSONPath":
 										with open(str(triples_map_inner.data_source), "r") as input_file_descriptor:
-											if str(triples_map_element.file_format).lower() == "csv":
+											if str(triples_map_inner.file_format).lower() == "csv":
 												reader = pd.read_csv(str(triples_map_inner.data_source), dtype = str)#, encoding = "ISO-8859-1")
 												reader = reader.where(pd.notnull(reader), None)
 												reader = reader.drop_duplicates(keep ='first')
@@ -948,8 +948,8 @@ def semantify_file(triples_map, triples_map_list, delimiter, row, no_inner_cycle
 													elif len(data) < 2:
 														hash_maker(data[list(data.keys())[0]], triples_map_inner, predicate_object_map.object_map,"", triples_map_list)
 
-									elif triples_map_element.file_format == "XPath":
-										with open(str(triples_map_element.data_source), "r") as input_file_descriptor:
+									elif triples_map_inner.file_format == "XPath":
+										with open(str(triples_map_inner.data_source), "r") as input_file_descriptor:
 											child_tree = ET.parse(input_file_descriptor)
 											child_root = child_tree.getroot()
 											hash_maker_xml(child_root, triples_map_inner, predicate_object_map.object_map)								
@@ -1398,7 +1398,7 @@ def semantify(config_path):
 							for source_type in order_list:
 								if source_type == "csv":
 									for source in order_list[source_type]:
-										if config["datasets"]["large_file"].lower() == "false":
+										if config["datasets"]["enrichment"].lower() == "false":
 											if ".csv" in source:
 												reader = pd.read_csv(source, dtype = str)#, encoding = "ISO-8859-1")
 											else:
@@ -1445,7 +1445,7 @@ def semantify(config_path):
 							for source_type in sorted_sources:
 								if source_type == "csv":
 									for source in sorted_sources[source_type]:
-										if config["datasets"]["large_file"].lower() == "false":
+										if config["datasets"]["enrichment"].lower() == "yes":
 											if ".csv" in source:
 												reader = pd.read_csv(source, dtype = str)#, encoding = "ISO-8859-1")
 											else:
@@ -1489,7 +1489,8 @@ def semantify(config_path):
 								if config["datasets"]["dbType"] == "mysql":
 									print("TM:", triples_map.triples_map_name)
 									pass
-								elif config["datasets"]["dbType"] == "postgres":	
+								elif config["datasets"]["dbType"] == "postgres":
+									print("TM:", triples_map.triples_map_name)	
 									pass					
 								else:
 									print("Invalid reference formulation or format")
@@ -1515,7 +1516,7 @@ def semantify(config_path):
 							for source_type in order_list:
 								if source_type == "csv":
 									for source in order_list[source_type]:
-										if config["datasets"]["large_file"].lower() == "false":
+										if config["datasets"]["enrichment"].lower() == "yes":
 											reader = pd.read_csv(source, encoding = "ISO-8859-1")
 											reader = reader.where(pd.notnull(reader), None)
 											if duplicate == "yes":
@@ -1556,7 +1557,7 @@ def semantify(config_path):
 							for source_type in sorted_sources:
 								if source_type == "csv":
 									for source in sorted_sources[source_type]:
-										if config["datasets"]["large_file"].lower() == "false":
+										if config["datasets"]["enrichment"].lower() == "yes":
 											reader = pd.read_csv(source, encoding = "ISO-8859-1")
 											reader = reader.where(pd.notnull(reader), None)
 											if duplicate == "yes":
